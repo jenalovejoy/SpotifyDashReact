@@ -1,26 +1,66 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import ReactDOM from "react-dom";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    useParams
+} from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import Cookies from 'js-cookie';
+import Playlists from './Playlists';
+import PlaylistView from './PlaylistView';
+import Landing from './Landing';
+
+// Renders individual Playlist view
+function RenderPlaylist(token){
+    const {id} = useParams();
+    return (
+        <PlaylistView id={id} token={token.token}/>
+    );
 }
 
+function App() {
+    const token = Cookies.get('spotifyAuthToken')
+
+    return (
+        <div className='App'>
+            <Router>
+            <Switch>
+                
+                {/* <Route path="/allPlaylists">
+                    <Playlists/>
+                </Route> */}
+                <Route exact path="/playlist/:id">
+                    {token ? (
+                        <RenderPlaylist token={token}/>
+                    ) : (
+                        // Display the login page if token unavailable
+                        <Landing/>
+                    )}
+                </Route>
+                <Route path="/">
+                    {token ? (
+                        <Playlists token={token}/>
+                        // <TopStats token={token}/> -> Two paths available currently, top info or playlist info
+                    ) : (
+                        // Display the login page if token unavailable
+                        <Landing/>
+                    )}
+                </Route>
+            </Switch>
+            </Router>
+        </div>
+    );
+}
+
+ReactDOM.render(
+  <Router>
+    <App />
+  </Router>,
+  document.getElementById("root")
+);
 export default App;
